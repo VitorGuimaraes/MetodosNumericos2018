@@ -1,11 +1,11 @@
-/*     1º Exercício Programa da disciplina de Métodos Numéricos     */ 
-/*												                    */ 
-/* Implementação de Conversão entre bases numéricas, Método         */
-/* de Jordan, Teorema de Lagrange, Teorema de Bolzano e Método      */
-/* da Bisseção                                                      */ 
-/* Implementado pelos alunos:			                 		    */
-/* ***, ***, Leonardo Holanda, Thalia Freitas e Vitor Guimarães     */
-/* Data: 20/04/2018									     			*/
+/*     1º Exercício Programa da disciplina de Métodos Numéricos */ 
+/*												                */ 
+/* Implementação de Conversão entre bases numéricas, Método     */
+/* de Jordan, Teorema de Lagrange, Teorema de Bolzano e Método  */
+/* da Bisseção                                                  */ 
+/* Implementado pelos alunos:			                 		*/
+/* ***, ***, Leonardo Holanda, Thalia Freitas e Vitor Guimarães */
+/* Data: 20/04/2018									     		*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,7 +25,7 @@ void converte(double num, int base){
 	int aux = 0;                //varivel auxiliar
 	int precisao = 20;
 	double parteInteira = 0;    
-	double parteFracionaria = num-(double) quociente;
+	double parteFracionaria = num-(double)quociente;
 
 	if((base == 2) || (base == 8)){
 		while(quociente >= base){      //Cálculo da parte inteira da conversão
