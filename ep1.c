@@ -126,225 +126,94 @@ void lerMatriz(){
 	fclose(arquivo);
 }//lerMatriz
 
-int criterioLinhasColunas(double **m, int n){
-
-	double *linha      = 0;
-	double *coluna     = 0;
-	int criterioLinha  = 1; 
-	int criterioColuna = 1;
+void Jordan(){
 	
-	linha = (double*)malloc(sizeof(double)*n);
-	coluna = (double*)malloc(sizeof(double)*n);
-
-	//Calcula o somatório Aij (i!=j) das linhas e colunas
-	for(int i = 0; i < n; i++){
-		for(int j = 0; j < n; j++){
-			if(i != j){
-				linha[i]  += m[i][j];
-				coluna[i] += m[j][i];
-			}
-		}
-	}
-
-	//Verifica o criterio de linhas e colunas
-	for(int i = 0; i < n; i++){
-		if((m[i][i] >= linha[i]) && (criterioLinha == 1))
-			criterioLinha = 1;
-		else
-			criterioLinha = 0;
-
-		if((m[i][i] >= coluna[i]) && (criterioColuna == 1))
-			criterioColuna = 1;
-		else
-			criterioColuna = 0;
-	}
-
-	if((criterioLinha == 0) && (criterioColuna == 0))
-		printf("O sistema linear não satisfaz o critério das linhas nem o critério das colunas\n");
-	else
-		return 1;
 }
 
-void gaussSeidel(double **m, int n){
-
-	if(criterioLinhasColunas(m, n) == 1){
-		double *variavel  = NULL; //x, y, z...
-		double *antVal    = NULL; //Valor anterior de x, y, z...
-		double *sumTermos = 0;    //soma os termos entre o primeiro e ultimo elemento de cada linha
-		int cont 		  = 0;	  //contador das iterações do método
-
-		sumTermos = (double*)malloc(sizeof(double)*n);
-		variavel  = (double*)malloc(sizeof(double)*n);
-		antVal    = (double*)malloc(sizeof(double)*n);
-
-		//As variaveis da equação são iniciadas em 0
-		for(int i = 0; i < n; i++){
-			variavel[i] = 0;
-			antVal[i]   = 1;
-		}
-
-		int variacao(double *variavel, double *antVal){
-			double variacao[n];
-			int variacaoMinima = 0;
-
-			for(int i = 0; i < n; i++){
-				variacao[i] = fabs(variavel[i] - antVal[i]);
-				
-				if(variacao[i] < EPSILON)
-					variacaoMinima = 1;
-				else
-					variacaoMinima = 0;
-			}
-			return variacaoMinima;
-		}
-
-		//Faz as soma dos coeficientes para y=0 e z=0
-		//Posteriormente as variáveis são isoladas e x, y, z... sao calculados
-		while((variacao(variavel, antVal) == 0) || cont < 1000){
-			for(int i = 0; i < n; i++){
-				for(int j = 0; j < n; j++){
-					if(i != j)
-						sumTermos[i] += m[i][j] * -1 * variavel[j];
-				}
-				
-				antVal[i]   = variavel[i];
-				variavel[i] = (m[i][n] + sumTermos[i]) / m[i][i];
-
-				//Zera o somador de coeficientes das equações
-				for(int i = 0; i < n; i++){
-					sumTermos[i] = 0;
-				}
-			}
-			cont++;
-		}
-
-		for(int i = 0; i < n; i++){
-			printf("Solução aproximada da variável[%d] = %.2lf\n", i, variavel[i]);
-		}
-		printf("%d iterações\n", cont);
+//################################ Lagrange #################################
+int calcula_k(int n, double *coeficientes){
+	int expoente = n;
+	//Percorre o vetor de coeficientes
+	for(int i = 0; i < n+1; i++){
+		//Se o coeficiente for negativo, k recebe o expoente do coeficiente
+		if(coeficientes[i] < 0)
+			return expoente;
+		expoente--;
 	}
-}//gaussSeidel
+}
 
-void newtown(double x0, int grau, double *coeficientes){
-
-	double derivada[grau-1]; //armazena os coeficientes de p'(x)
-	double xi    = x0;       //armazena o valor atual de xi
-	double xiAnt = xi+1;     //armazena o valor anterior de xi
-	int cont     = 0; 		 //conta a quantidade de iterações
-
-	//Faz a derivada p'(x)
-	for(int i = 0; i < grau; i++){
-		derivada[i] = (grau-i) * coeficientes[i];
+double calcula_b(int n, double *coeficientes){
+	int menor = 0;
+	//Percorre o vetor de coeficientes
+	for(int i = 0; i < n+1; i++){
+		//Se o coeficiente atual for o mais negativo ele é armazenado
+		if(coeficientes[i] < menor)
+			menor = coeficientes[i];
 	}
+	return fabs(menor);
+}
 
-	double calculaPx(double xi){
-		double  px = 0; //armazena o resultado de p(x)
-		
-		px = pow(xi, grau); 
-		for(int i = 1; i < grau-1; i++)
-			px += coeficientes[i] * pow(xi, grau-i); 
-		px += coeficientes[grau-1] * xi + 
-		coeficientes[grau];
-		return px;
+double calcula_l(int n, double k, double b, double an){
+	// printf("L = %.4f\n", 1.0 + pow(b/an, 1.0/(n-k)));
+	return 1.0 + pow(b/an, 1.0/(n-k));
+}
+
+//Inverte o sinal dos coeficientes a2, a4, ...
+void inverteSinal(int n, double *coeficientes){
+	for(int i = 0; i < n+1; i++){
+		if(i%2 != 0)
+			coeficientes[i] *= -1;
 	}
+}
 
-	double calculaP1x(double xi){
-		double p1x = 0; //armazena o resultado de p'(x)
-
-		p1x = derivada[0] * pow(x0, grau-1);
-		for(int i = 1; i < grau-2; i++)
-			p1x += derivada[i] * pow(xi, grau-i-1);
-		p1x += derivada[grau-2] * xi + derivada[grau-1];
-	}
-
-	while((xi - xiAnt > EPSILON) || (cont < 1000)){
-		xiAnt = xi;
-		xi = xiAnt - calculaPx(xi)/calculaP1x(xi);
-		cont++;
-	}
-	printf("\nMétodo de Newton com x0 = %.8lf\n", x0);
-	printf("%d iterações\n", cont);
-	printf("Raiz aproximada = %.8lf\n", xi);
-}//newtown
-
-void lagrange(int grau, double *coeficientes){
+void Lagrange(int n, double *coeficientes){
 
 	double k[4];
-	double n = grau;
 	double b[4];
 	double an[2];
 	double L[4];
-	int cont = 0; //variável auxiliar
-	double *equacaoInversa = 0;
+	double *coeficienteInverso = 0;
+	
+	coeficienteInverso = (double*)malloc(sizeof(double)*n+1);
 
-	equacaoInversa = (double*)malloc(sizeof(double)*grau+1);
-
-	//Inverte a equação
-	for(int i = grau; i > -1; i--){
-		equacaoInversa[cont] = coeficientes[i];
-		cont++;
+	//Obtém o polinômio invertido para calcular L1 e L3
+	int iterator = 0; //variável auxiliar
+	for(int i = n; i > -1; i--){
+		coeficienteInverso[iterator] = coeficientes[i];
+		iterator++;
 	}
+
+	//Se o an do polinômio invertido for negativo, multiplica o polinômio por -1
+	if(coeficienteInverso[0] < 0){
+		for(int i = 0; i < n+1; i++){
+			coeficienteInverso[i] *= -1;
+		}
+	}
+
 	an[0] = coeficientes[0]; 
-	an[1] = equacaoInversa[0]; 
-
-	void calcula_k(double *termos, int index){
-		int i = 0;
-		while((k[index] != grau-i+1) && (i < grau+1)){
-			if(termos[i] < 0)
-				k[index] = grau-i;
-			i++;
-		}
-	}
-
-	void calcula_b(double *termos, int index){
-		for(int i = 0; i < grau+1; i++){
-			if(termos[i] < b[index])
-				b[index] = (termos[i]);			
-		}
-		b[index] = fabs(b[index]);
-	}
-
-	void calcula_l(int index, int index_an){
-		if(n-k[index] == 1)
-			L[index] = 1.0 + b[index]/an[index_an];
-		else
-			L[index] = 1.0 + pow(b[index]/an[index_an], 1.0/(n-k[index]));
-	}
-
-	void inverteSinal(double *termos){
-		for(int i = 0; i < grau+1; i++){
-			if(i%2 != 0)
-				termos[i] *= -1;
-		}
-	}
+	an[1] = coeficienteInverso[0]; 
 
 	//Calcula L0, L1, L2 e L3
-	for(int i = 0; i < grau; i++){
-		if(i == 2) //Quando calcular L2 inverte os sinais da equação
-			inverteSinal(coeficientes);
-		if(i == 3) //Quando calcular L3 inverte os sinais da equação
-			inverteSinal(equacaoInversa);
+	for(int l = 0; l < 4; l++){
+		if(l == 2) //Quando calcular L2 inverte os sinais da equação
+			inverteSinal(n, coeficientes);
+		if(l == 3) //Quando calcular L3 inverte os sinais da equação
+			inverteSinal(n, coeficienteInverso);
 
-		if(i%2 == 0)
-			calcula_k(coeficientes, i);
-		else
-			calcula_k(equacaoInversa, i);
-		
-		calcula_b(coeficientes, i);
-
-		if(i%2 == 0)
-			calcula_l(i, 0);
-		else
-			calcula_l(i, 1);
+		if(l%2 == 0){ //Calcula k, b e L para L0 e L2
+			k[l] = calcula_k(n, coeficientes);
+			b[l] = calcula_b(n, coeficientes);
+			L[l] = calcula_l(n, k[l], b[l], an[0]);
+		}
+		else{ 		 //Calcula k, b e L para L1 e L3
+			k[l] = calcula_k(n, coeficienteInverso);
+			b[l] = calcula_b(n, coeficienteInverso);
+			L[l] = calcula_l(n, k[l], b[l], an[1]);
+		}
 	}
-
 	printf("\nIntervalo das raízes negativas: %.4lf <= x- <= %.4lf\n", -L[2], -1/L[3]);
 	printf("Intervalo das raízes positivas: %.4lf <= x+ <= %.4lf\n", 1/L[1], L[0]);
-
-	//Desinverte o sinal dos coeficientes a2, a4... 
-	inverteSinal(coeficientes);
-	newtown(L[0], grau, coeficientes);
-}//lagrange
+}//Lagrange
 
 int main(){
 
@@ -385,7 +254,7 @@ int main(){
 				lerMatriz();
 				printf("\n\t\t|----- Matriz -----|\n\n");
 				imprimeMatriz(A, ordem, ordem+1);
-				gaussSeidel(A, ordem);	
+				// gaussSeidel(A, ordem);	
 				break;
 				
 			case 'E':
@@ -394,19 +263,30 @@ int main(){
 
 				coeficientes = (double*)malloc(sizeof(double)*grau+1);
 
+				for(i = 0; i < grau+1; i++){
+					printf("Informe o coeficiente a%d:\n", grau-i);
+					scanf("%lf", &coeficientes[i]);
+
+					//Verifica se an é menor que zero
+					if(coeficientes[0] < 0){
+						printf("a%d deve ser maior que 0!\n", grau-i);
+						verifica = 0;
+					}
+				}
+
 				while((verifica == 1) && (i < grau+1)){
 					printf("Informe o coeficiente a%d:\n", grau-i);
 					scanf("%lf", &coeficientes[i]); 
 					
-					// if((coeficientes[i] < 0) && (i < grau) || (coeficientes[grau] == 0)){
-					// 	printf("a%d deve ser maior que 0 e a0 deve ser diferente de 0!\n", grau-i);
-					// 	verifica = 0;
-					// }
+					if((coeficientes[i] < 0) && (i < grau) || (coeficientes[grau] == 0)){
+						printf("a%d deve ser maior que 0 e a0 deve ser diferente de 0!\n", grau-i);
+						verifica = 0;
+					}
 					i++;
 				}
 
 				if(verifica == 1)
-					lagrange(grau, coeficientes);
+					Lagrange(grau, coeficientes);
 				break;
 
 			case 'F':
