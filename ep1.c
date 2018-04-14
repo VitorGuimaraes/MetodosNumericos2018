@@ -130,7 +130,7 @@ void Jordan(){
 	
 }
 
-//################################ Lagrange #################################
+//################################ Teorema de Lagrange #################################
 int calcula_k(int n, double *coeficientes){
 	int expoente = n;
 	//Percorre o vetor de coeficientes
@@ -221,8 +221,6 @@ int main(){
 	double numero        = 0; //número a ser convertido
 	int grau	         = 0; //grau da equação algébrica
 	double *coeficientes = 0; //coeficienes da equação algébrica
-	int verifica		 = 1; //variável auxiliar
-	int i 			     = 0; //variável auxiliar
 	char opcao;			      //opção selecionada
 	
 	while(opcao != 'F'){
@@ -254,7 +252,7 @@ int main(){
 				lerMatriz();
 				printf("\n\t\t|----- Matriz -----|\n\n");
 				imprimeMatriz(A, ordem, ordem+1);
-				// gaussSeidel(A, ordem);	
+				// Jordan(A, ordem);	
 				break;
 				
 			case 'E':
@@ -263,30 +261,25 @@ int main(){
 
 				coeficientes = (double*)malloc(sizeof(double)*grau+1);
 
-				for(i = 0; i < grau+1; i++){
+				for(int i = 0; i < grau+1; i++){
 					printf("Informe o coeficiente a%d:\n", grau-i);
 					scanf("%lf", &coeficientes[i]);
 
-					//Verifica se an é menor que zero
-					if(coeficientes[0] < 0){
-						printf("a%d deve ser maior que 0!\n", grau-i);
-						verifica = 0;
+					//Verifica se an é maior que zero
+					while(coeficientes[0] < 1){
+						printf("a%d deve ser maior que 0!\n", grau);
+						printf("Informe o coeficiente a%d:\n", grau);
+						scanf("%lf", &coeficientes[i]);
 					}
-				}
 
-				while((verifica == 1) && (i < grau+1)){
-					printf("Informe o coeficiente a%d:\n", grau-i);
-					scanf("%lf", &coeficientes[i]); 
-					
-					if((coeficientes[i] < 0) && (i < grau) || (coeficientes[grau] == 0)){
-						printf("a%d deve ser maior que 0 e a0 deve ser diferente de 0!\n", grau-i);
-						verifica = 0;
+					//Verifica se a0 é diferente de zero
+					while(coeficientes[grau] == 0){
+						printf("a0 deve ser maior que 0!\n");
+						printf("Informe o coeficiente a0:\n");
+						scanf("%lf", &coeficientes[grau]);
 					}
-					i++;
-				}
-
-				if(verifica == 1)
-					Lagrange(grau, coeficientes);
+				}				
+				Lagrange(grau, coeficientes);
 				break;
 
 			case 'F':
