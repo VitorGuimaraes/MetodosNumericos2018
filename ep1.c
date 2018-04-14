@@ -158,7 +158,7 @@ double calcula_l(int n, double k, double b, double an){
 	return 1.0 + pow(b/an, 1.0/(n-k));
 }
 
-//Inverte o sinal dos coeficientes a2, a4, ...
+//Inverte o sinal dos coeficientes an-1, an-3, ...
 void inverteSinal(int n, double *coeficientes){
 	for(int i = 0; i < n+1; i++){
 		if(i%2 != 0)
@@ -213,16 +213,33 @@ void Lagrange(int n, double *coeficientes){
 	}
 	printf("\nIntervalo das raízes negativas: %.4lf <= x- <= %.4lf\n", -L[2], -1/L[3]);
 	printf("Intervalo das raízes positivas: %.4lf <= x+ <= %.4lf\n", 1/L[1], L[0]);
+
+	//O sinal de an-1, an-3... estavam invertidos após calcular Lagrange, portanto
+	//é necessário desinvertê-los para obter o polômio original de volta
+	inverteSinal(n, coeficientes);
 }//Lagrange
+
+double Bolzano(int grau, double *coeficientes, double intervalo){
+	double resultado = 0;
+	
+	for(int i = 0; i < grau; i++){
+		printf("now = %.2lf, %.2lf, %d\n", coeficientes[i], intervalo, grau-i);
+		resultado += coeficientes[i] * pow(intervalo, grau-i);
+		printf("Resultado iterado = %.2lf\n", resultado);
+	} 
+
+	return resultado + coeficientes[grau];
+}//Bolzano
 
 int main(){
 
 	setlocale(LC_ALL, "Portuguese");
-	double numero        = 0; //número a ser convertido
-	int grau	         = 0; //grau da equação algébrica
-	double *coeficientes = 0; //coeficienes da equação algébrica
-	char opcao;			      //opção selecionada
-	
+	double numero        = 0;   //número a ser convertido
+	int grau	         = 0;   //grau da equação algébrica
+	double *coeficientes = 0;   //coeficienes da equação algébrica
+	double intervalo[2];        //intervalo para o teorema de Bolzano
+	char opcao;			        //opção selecionada
+
 	while(opcao != 'F'){
 		system("cls");
 		printf("\t\t|-----------------------|\n");
@@ -280,6 +297,24 @@ int main(){
 					}
 				}				
 				Lagrange(grau, coeficientes);
+
+				printf("Informe o primeiro valor do intervalo (ex: 0)");
+				scanf("%lf", &intervalo[0]);
+				
+				printf("Informe o primeiro valor do intervalo (ex: 3)");
+				scanf("%lf", &intervalo[1]);
+
+				intervalo[0] = Bolzano(grau, coeficientes, intervalo[0]);
+				intervalo[1] = Bolzano(grau, coeficientes, intervalo[1]);
+
+				printf("Resultado = %.2lf\n", intervalo[0]);
+				printf("Resultado = %.2lf\n", intervalo[1]);
+
+				if(intervalo[0] * intervalo[1] < 0)		
+					printf("O intervalo contém um número ímpar de raízes!\n");
+				else
+					printf("O intervalo contém um número par de raízes ou nenhuma raiz!\n");
+
 				break;
 
 			case 'F':
