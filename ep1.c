@@ -1,11 +1,11 @@
-/*     1º Exercício Programa da disciplina de Métodos Numéricos */ 
-/*												                */ 
-/* Implementação de Conversão entre bases numéricas, Método     */
-/* de Jordan, Teorema de Lagrange, Teorema de Bolzano e Método  */
-/* da Bisseção                                                  */ 
-/* Implementado pelos alunos:			                 		*/
-/* ***, ***, Leonardo Holanda, Thalia Freitas e Vitor Guimarães */
-/* Data: 20/04/2018									     		*/
+/*     1º Exercício Programa da disciplina de Métodos Numéricos    */ 
+/*												                   */ 
+/* Implementação de Conversão entre bases numéricas, Método        */
+/* de Jordan, Teorema de Lagrange, Teorema de Bolzano e Método     */
+/* da Bisseção                                                     */ 
+/* Implementado pelos alunos:			                 		   */
+/* Jorge Girão, Leonardo Holanda, Thalia Freitas e Vitor Guimarães */
+/* Data: 20/04/2018									     		   */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -219,17 +219,42 @@ void Lagrange(int n, double *coeficientes){
 	inverteSinal(n, coeficientes);
 }//Lagrange
 
-double Bolzano(int grau, double *coeficientes, double intervalo){
+double resolvePolinomio(int grau, double *coeficientes, double fx){
 	double resultado = 0;
 	
 	for(int i = 0; i < grau; i++){
-		printf("now = %.2lf, %.2lf, %d\n", coeficientes[i], intervalo, grau-i);
-		resultado += coeficientes[i] * pow(intervalo, grau-i);
-		printf("Resultado iterado = %.2lf\n", resultado);
+		resultado += coeficientes[i] * pow(fx, grau-i);
 	} 
 
 	return resultado + coeficientes[grau];
-}//Bolzano
+}
+
+double bissecao(double a, double b, int grau, double *coeficientes, double TOL, int n_iteracoes){
+
+	double f_a = 0;
+	double f_b = 0;
+	double f_m = 0;
+	double m   = 0;
+	int    i   = 1;
+
+	while(i <= n_iteracoes){ 
+		m   = (a+b)/2;
+		f_a = resolvePolinomio(grau, coeficientes, a);
+		f_b = resolvePolinomio(grau, coeficientes, b);
+		f_m = resolvePolinomio(grau, coeficientes, m);
+
+		printf("%.2lf | %.2lf | %.2lf | %.2lf | %.2lf | %.2lf | %.2lf\n", a, b, m, f_a, f_b, f_m, (b-a)/2);
+
+		if(f_a * f_m > 0)
+			a = m;
+		else
+			b = m;
+		i++;
+		//Condição de parada
+		if(((b-a)/2 < TOL) || (i == n_iteracoes))
+			return m;
+	}
+}
 
 int main(){
 
@@ -237,7 +262,9 @@ int main(){
 	double numero        = 0;   //número a ser convertido
 	int grau	         = 0;   //grau da equação algébrica
 	double *coeficientes = 0;   //coeficienes da equação algébrica
-	double intervalo[2];        //intervalo para o teorema de Bolzano
+	double raiz			 = 0;   //raiz aproximada do Método da Bisseção
+	double intervalo[2];        //intervalo para o Teorema de Bolzano 
+	double resultInterv[2];     //Resultado do cálculo do polômio no intervalo	
 	char opcao;			        //opção selecionada
 
 	while(opcao != 'F'){
@@ -271,7 +298,7 @@ int main(){
 				imprimeMatriz(A, ordem, ordem+1);
 				// Jordan(A, ordem);	
 				break;
-				
+
 			case 'E':
 				printf("Informe o grau da equação algébrica: \n");
 				scanf("%d", &grau);
@@ -301,24 +328,28 @@ int main(){
 				printf("Informe o primeiro valor do intervalo (ex: 0)");
 				scanf("%lf", &intervalo[0]);
 				
-				printf("Informe o primeiro valor do intervalo (ex: 3)");
+				printf("Informe o segundo valor do intervalo (ex: 3)");
 				scanf("%lf", &intervalo[1]);
 
-				intervalo[0] = Bolzano(grau, coeficientes, intervalo[0]);
-				intervalo[1] = Bolzano(grau, coeficientes, intervalo[1]);
+				resultInterv[0] = resolvePolinomio(grau, coeficientes, intervalo[0]);
+				resultInterv[1] = resolvePolinomio(grau, coeficientes, intervalo[1]);
 
-				printf("Resultado = %.2lf\n", intervalo[0]);
-				printf("Resultado = %.2lf\n", intervalo[1]);
+				printf("Resultado = %.2lf\n", resultInterv[0]);
+				printf("Resultado = %.2lf\n", resultInterv[1]);
 
-				if(intervalo[0] * intervalo[1] < 0)		
+				if(resultInterv[0] * resultInterv[1] < 0){
 					printf("O intervalo contém um número ímpar de raízes!\n");
+					raiz = bissecao(intervalo[0], intervalo[1], grau, coeficientes, 0.00000001, 1000);
+					printf("A raiz aproximada contida no intervalo [%.2lf, %.2lf] é: %.8lf\n", intervalo[0], intervalo[1], raiz);
+				}
 				else
-					printf("O intervalo contém um número par de raízes ou nenhuma raiz!\n");
+					printf("O intervalo contém um número par de raízes!\n");
 
 				break;
 
 			case 'F':
 				return 0;
+
 			default:
 				printf("Opção inválida, tente novamente!");
 		}
