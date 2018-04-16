@@ -154,7 +154,6 @@ double calcula_b(int n, double *coeficientes){
 }
 
 double calcula_l(int n, double k, double b, double an){
-	// printf("L = %.4f\n", 1.0 + pow(b/an, 1.0/(n-k)));
 	return 1.0 + pow(b/an, 1.0/(n-k));
 }
 
@@ -212,7 +211,7 @@ void Lagrange(int n, double *coeficientes){
 		}
 	}
 	printf("\nIntervalo das raízes negativas: %.4lf <= x- <= %.4lf\n", -L[2], -1/L[3]);
-	printf("Intervalo das raízes positivas: %.4lf <= x+ <= %.4lf\n", 1/L[1], L[0]);
+	printf("Intervalo das raízes positivas: %.4lf <= x+ <= %.4lf\n\n", 1/L[1], L[0]);
 
 	//O sinal de an-1, an-3... estavam invertidos após calcular Lagrange, portanto
 	//é necessário desinvertê-los para obter o polômio original de volta
@@ -225,7 +224,6 @@ double resolvePolinomio(int grau, double *coeficientes, double fx){
 	for(int i = 0; i < grau; i++){
 		resultado += coeficientes[i] * pow(fx, grau-i);
 	} 
-
 	return resultado + coeficientes[grau];
 }
 
@@ -243,8 +241,6 @@ double bissecao(double a, double b, int grau, double *coeficientes, double TOL, 
 		f_b = resolvePolinomio(grau, coeficientes, b);
 		f_m = resolvePolinomio(grau, coeficientes, m);
 
-		printf("%.2lf | %.2lf | %.2lf | %.2lf | %.2lf | %.2lf | %.2lf\n", a, b, m, f_a, f_b, f_m, (b-a)/2);
-
 		if(f_a * f_m > 0)
 			a = m;
 		else
@@ -254,6 +250,15 @@ double bissecao(double a, double b, int grau, double *coeficientes, double TOL, 
 		if(((b-a)/2 < TOL) || (i == n_iteracoes))
 			return m;
 	}
+}
+
+void PressioneEnterContinuar(){ 
+	printf("\n\nPressione ENTER para continuar... ");
+	while(1){ 
+		int c = getchar();
+		if(c == '\n' || c == EOF) 
+			break; 
+	} 
 }
 
 int main(){
@@ -268,7 +273,7 @@ int main(){
 	char opcao;			        //opção selecionada
 
 	while(opcao != 'F'){
-		system("cls");
+		system("clear");
 		printf("\t\t|-----------------------|\n");
 		printf("\t\t|          Menu         |\n");
 		printf("\t\t|-----------------------|\n\n");
@@ -278,9 +283,11 @@ int main(){
 		printf("\t\tF - Finalizar\n");
 
 		opcao = getchar();
+		
 		switch(opcao){
 			case 'C':
-				printf("Digite o número a ser convertido: \n");
+				system("clear");
+				printf("Insira o número a ser convertido: ");
 				scanf("%lf", &numero);	
 				printf("\nBinário:\n");
 				converte(numero, 2);
@@ -290,16 +297,22 @@ int main(){
 
 				printf("\nHexadecimal:\n");
 				converte(numero, 16);
+
+				PressioneEnterContinuar(); 
 				break;
 
 			case 'S':
+				system("clear");
 				lerMatriz();
 				printf("\n\t\t|----- Matriz -----|\n\n");
 				imprimeMatriz(A, ordem, ordem+1);
 				// Jordan(A, ordem);	
+
+				PressioneEnterContinuar(); 
 				break;
 
 			case 'E':
+				system("clear");
 				printf("Informe o grau da equação algébrica: \n");
 				scanf("%d", &grau);
 
@@ -325,10 +338,10 @@ int main(){
 				}				
 				Lagrange(grau, coeficientes);
 
-				printf("Informe o primeiro valor do intervalo (ex: 0)");
+				printf("Informe o primeiro valor do intervalo (ex: 0): ");
 				scanf("%lf", &intervalo[0]);
 				
-				printf("Informe o segundo valor do intervalo (ex: 3)");
+				printf("Informe o segundo valor do intervalo (ex: 3): ");
 				scanf("%lf", &intervalo[1]);
 
 				resultInterv[0] = resolvePolinomio(grau, coeficientes, intervalo[0]);
@@ -345,6 +358,7 @@ int main(){
 				else
 					printf("O intervalo contém um número par de raízes!\n");
 
+				PressioneEnterContinuar(); 
 				break;
 
 			case 'F':
