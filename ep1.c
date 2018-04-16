@@ -12,7 +12,6 @@
 #include <math.h>
 #include <string.h>
 #include <locale.h>
-#define EPSILON 0.00000001 
 
 //Variáveis Globais
 double **A; //armazena a matriz	
@@ -65,7 +64,7 @@ void converte(double num, int base){
 
 double **alocaMatriz(int l, int c){
 	//Se houver memoria disponível, aloca uma matriz com l linhas e c colunas e 
-	//devolve o endereço base da matriz, caso contrario devolve um ponterio nulo
+	//devolve o endereço base da matriz, caso contrário devolve um ponterio nulo
 	
 	double **m;
 	m = malloc(sizeof(double *) * l);
@@ -87,7 +86,7 @@ double **alocaMatriz(int l, int c){
 }//alocaMatriz
 
 void imprimeMatriz(double **m, int l, int c){
-	/* Imprime valores de uma matriz de double com l linhas e c colunas */
+	// Imprime valores de uma matriz de double com l linhas e c colunas 
 	for(int i = 0; i < l; i++){
 		for(int j = 0; j < c; j++){
 			printf("%10.3lf ", m[i][j]);
@@ -250,16 +249,7 @@ double bissecao(double a, double b, int grau, double *coeficientes, double TOL, 
 		if(((b-a)/2 < TOL) || (i == n_iteracoes))
 			return m;
 	}
-}
-
-void PressioneEnterContinuar(){ 
-	printf("\n\nPressione ENTER para continuar... ");
-	while(1){ 
-		int c = getchar();
-		if(c == '\n' || c == EOF) 
-			break; 
-	} 
-}
+}//Teorema de Lagrange
 
 int main(){
 
@@ -273,7 +263,6 @@ int main(){
 	char opcao;			        //opção selecionada
 
 	while(opcao != 'F'){
-		system("clear");
 		printf("\t\t|-----------------------|\n");
 		printf("\t\t|          Menu         |\n");
 		printf("\t\t|-----------------------|\n\n");
@@ -284,9 +273,9 @@ int main(){
 
 		opcao = getchar();
 		
+		system("clear");
 		switch(opcao){
-			case 'C':
-				system("clear");
+			case 'C':	
 				printf("Insira o número a ser convertido: ");
 				scanf("%lf", &numero);	
 				printf("\nBinário:\n");
@@ -297,22 +286,17 @@ int main(){
 
 				printf("\nHexadecimal:\n");
 				converte(numero, 16);
-
-				PressioneEnterContinuar(); 
 				break;
 
 			case 'S':
-				system("clear");
 				lerMatriz();
 				printf("\n\t\t|----- Matriz -----|\n\n");
 				imprimeMatriz(A, ordem, ordem+1);
 				// Jordan(A, ordem);	
 
-				PressioneEnterContinuar(); 
 				break;
 
 			case 'E':
-				system("clear");
 				printf("Informe o grau da equação algébrica: \n");
 				scanf("%d", &grau);
 
@@ -356,16 +340,15 @@ int main(){
 					printf("A raiz aproximada contida no intervalo [%.2lf, %.2lf] é: %.8lf\n", intervalo[0], intervalo[1], raiz);
 				}
 				else
-					printf("O intervalo contém um número par de raízes!\n");
+					printf("O intervalo contém um número par de raízes!\n\n");
 
-				PressioneEnterContinuar(); 
 				break;
 
 			case 'F':
 				return 0;
 
 			default:
-				printf("Opção inválida, tente novamente!");
+				printf("Opção inválida, tente novamente!\n");
 		}
 		opcao = getchar();
 	}
