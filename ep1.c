@@ -19,21 +19,21 @@ double *p;  //armazena a matriz de ponteiros
 int ordem;  //armazena a ordem da matriz 
 
 void converte(double num, int base){
-	int quociente = (int)num;   //variavel usada nas iteracoes da parte inteira
-	int i = 0;                  //variavel auxiliar 
-	int aux = 0;                //varivel auxiliar
+	int quociente = (int)num;   //variável usada nas iterações da parte inteira
+	int i = 0;                  //variável auxiliar 
+	int aux = 0;                //variável auxiliar
 	int precisao = 20;
-	double parteInteira = 0;    
+	long double parteInteira = 0;    
 	double parteFracionaria = num-(double)quociente;
 
 	if((base == 2) || (base == 8)){
 		while(quociente >= base){      //Cálculo da parte inteira da conversão
-			parteInteira += quociente%base*pow(10, i);
+			parteInteira += quociente % base * pow(10, i);
 			quociente = quociente/base;
 			i++;
 		}
 		parteInteira += quociente%base*pow(10, i); 
-		printf("%d.", (int)parteInteira);       
+		printf("%lld.", (long long int)parteInteira);       
 	}	
 
 	if(base == 16){
@@ -125,9 +125,9 @@ void lerMatriz(){
 	fclose(arquivo);
 }//lerMatriz
 
-void Jordan(){
+// void Jordan(){
 	
-}
+// }
 
 //################################ Teorema de Lagrange #################################
 int calcula_k(int n, double *coeficientes){
@@ -215,7 +215,7 @@ void Lagrange(int n, double *coeficientes){
 	//O sinal de an-1, an-3... estavam invertidos após calcular Lagrange, portanto
 	//é necessário desinvertê-los para obter o polômio original de volta
 	inverteSinal(n, coeficientes);
-}//Lagrange
+}//Teorema de Lagrange
 
 double resolvePolinomio(int grau, double *coeficientes, double fx){
 	double resultado = 0;
@@ -249,7 +249,7 @@ double bissecao(double a, double b, int grau, double *coeficientes, double TOL, 
 		if(((b-a)/2 < TOL) || (i == n_iteracoes))
 			return m;
 	}
-}//Teorema de Lagrange
+}//Bisseção
 
 int main(){
 
@@ -336,7 +336,7 @@ int main(){
 
 				if(resultInterv[0] * resultInterv[1] < 0){
 					printf("O intervalo contém um número ímpar de raízes!\n");
-					raiz = bissecao(intervalo[0], intervalo[1], grau, coeficientes, 0.00000001, 1000);
+					// raiz = bissecao(intervalo[0], intervalo[1], grau, coeficientes, 0.00000001, 1000);
 					printf("A raiz aproximada contida no intervalo [%.2lf, %.2lf] é: %.8lf\n", intervalo[0], intervalo[1], raiz);
 				}
 				else
@@ -354,3 +354,4 @@ int main(){
 	}
 	return 0;
 }
+//NÃO ESQUECER DE DESALOCAR OS MALLOC
