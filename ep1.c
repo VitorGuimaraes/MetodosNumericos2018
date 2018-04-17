@@ -63,7 +63,7 @@ void converte(double num, int base){
 }//converte
 
 double **alocaMatriz(int l, int c){
-	//Se houver memoria disponível, aloca uma matriz com l linhas e c colunas e 
+	//Se houver memória disponível, aloca uma matriz com l linhas e c colunas e 
 	//devolve o endereço base da matriz, caso contrário devolve um ponterio nulo
 	
 	double **m;
@@ -153,14 +153,19 @@ double calcula_b(int n, double *coeficientes){
 }
 
 double calcula_l(int n, double k, double b, double an){
+	printf("L = %.4f\n", 1.0 + pow(b/an, 1.0/(n-k)));
 	return 1.0 + pow(b/an, 1.0/(n-k));
 }
 
-//Inverte o sinal dos coeficientes an-1, an-3, ...
+//Inverte o sinal dos coeficientes de coeficiente ímpar, ...
 void inverteSinal(int n, double *coeficientes){
-	for(int i = 0; i < n+1; i++){
-		if(i%2 != 0)
-			coeficientes[i] *= -1;
+	int i = 0;
+	if(n%2 == 0)	//Se o grau do polinômio for par
+		i = 1;		//Começa a inverter a partir do segundo coeficiente
+	else			//Senão começa a inverter a partir do primeiro coeficiente
+		i = 0;
+	for(i; i < n+1; i+=2){	
+		coeficientes[i] *= -1;
 	}
 }
 
@@ -331,8 +336,8 @@ int main(){
 				resultInterv[0] = resolvePolinomio(grau, coeficientes, intervalo[0]);
 				resultInterv[1] = resolvePolinomio(grau, coeficientes, intervalo[1]);
 
-				printf("Resultado = %.2lf\n", resultInterv[0]);
-				printf("Resultado = %.2lf\n", resultInterv[1]);
+				printf("Resultado[%.2lf] = %.2lf\n", intervalo[0], resultInterv[0]);
+				printf("Resultado[%.2lf] = %.2lf\n", intervalo[1], resultInterv[1]);
 
 				if(resultInterv[0] * resultInterv[1] < 0){
 					printf("O intervalo contém um número ímpar de raízes!\n");
