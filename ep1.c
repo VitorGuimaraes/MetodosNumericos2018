@@ -159,13 +159,8 @@ double calcula_l(int n, double k, double b, double an){
 
 //Inverte o sinal dos coeficientes de coeficiente ímpar, ...
 void inverteSinal(int n, double *coeficientes){
-	int i = 0;
-	if(n%2 == 0)	//Se o grau do polinômio for par
-		i = 1;		//Começa a inverter a partir do segundo coeficiente
-	else			//Senão começa a inverter a partir do primeiro coeficiente
-		i = 0;
-	for(i; i < n+1; i+=2){	
-		coeficientes[i] *= -1;
+	for(int i = 0; i < n+1; i++){	
+		coeficientes[i] *= pow(-1, i);
 	}
 }
 
