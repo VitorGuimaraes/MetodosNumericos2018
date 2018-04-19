@@ -1,4 +1,4 @@
-/*     1º Exercício Programa da disciplina de Métodos Numéricos    */ 
+/*     1º Exercício Programa da disciplina de Cálculo Numérico     */ 
 /*												                   */ 
 /* Implementação de Conversão entre bases numéricas, Método        */
 /* de Jordan, Teorema de Lagrange, Teorema de Bolzano e Método     */
@@ -22,25 +22,27 @@ int ordem;  //armazena a ordem da matriz
 
 //################################ Conversão entre Bases #################################
 void converte(double num, int base) {
+	//Recebe um número decimal e a base numérica para a qual deve ser convertido
+	//e printa o número convertido com precisão de até 20 casas decimais
 	int quociente = (int)num;   //variável usada nas iterações da parte inteira
-	int i = 0;                  //variável auxiliar 
+	int i = 0;                      //variável auxiliar 
 	int aux = 0;                //variável auxiliar
 	int precisao = 20;
 	long double parteInteira = 0;    
 	double parteFracionaria = num-(double)quociente;
 
-	if((base == 2) || (base == 8)) {
+	if(base == 2 || base == 8) {
 		while(quociente >= base) {      //Cálculo da parte inteira da conversão
 			parteInteira += quociente % base * pow(10, i);
-			quociente = quociente/base;
+			quociente = quociente / base;
 			i++;
 		}
-		parteInteira += quociente%base*pow(10, i); 
+		parteInteira += quociente % base * pow(10, i); 
 		printf("%lld.", (long long int)parteInteira);       
 	}	
 
-	if(base == 16) {
-		parteFracionaria = num-(int)num;
+	else if(base == 16) {
+		parteFracionaria = num - (int)num;
 		printf("%X.", (int)num);
 	}
 
@@ -49,35 +51,34 @@ void converte(double num, int base) {
 		aux = (int)parteFracionaria;   //Obtenção da parte inteira
 		
 		if(parteFracionaria > 0) {
-			if((base == 2) || (base == 8))
+			if(base == 2 || base == 8)
 				printf("%d", (int)parteFracionaria);
 			else if(base == 16)
 				printf("%X", (int)parteFracionaria);
-
 			parteFracionaria -= aux;
 		}
 		else
 			printf("0");
-
 		if(parteFracionaria == 0)
 			break;
 	}
 	printf("\n");
 }//converte
 
-double **alocaMatriz(int row, int col) {
-	//Se houver memória disponível, aloca uma matriz com l linhas e c colunas e 
+//################################ Método de Jordan #################################
+double **alocaMatriz(int nLinhas, int nColunas) {
+	//Se houver memória disponível, aloca uma matriz com nLinhas  e nColunas e 
 	//devolve o endereço base da matriz, caso contrário devolve um ponterio nulo
-	
 	double **m;
-	m = malloc(sizeof(double *) * row);
+	int i, j;
+	m = malloc(sizeof(double *) * nLinhas);
 	if(m == NULL)  //Memória insuficiente
 		return NULL;
 	
-	for(int i = 0; i < row; i++) {
-		m[i] = malloc(sizeof(double) * col);
+	for(i = 0; i < nLinhas; i++) {
+		m[i] = malloc(sizeof(double) * nColunas);
 		if(m[i] == NULL) {
-			for(int j = 0; j < i; j++) {
+			for(j = 0; j < i; j++) {
 				free(m[j]);
 			}
 			free(m);
@@ -87,12 +88,12 @@ double **alocaMatriz(int row, int col) {
 	return m;
 }//alocaMatriz
 
-//################################ Método de Jordan #################################
-void imprimeMatriz(double **m, int l, int c) {
-	// Imprime valores de uma matriz de double com l linhas e c colunas 
+void imprimeMatriz(double **m, int nLinhas, int nColunas) {
+	// Imprime valores de uma matriz com nLinhas e nColunas 
+	int i, j;
 	printf("\n\t\t|----- Matriz -----|\n\n");
-	for(int i = 0; i < l; i++) {
-		for(int j = 0; j < c; j++) {
+	for(i = 0; i < nLinhas; i++) {
+		for(j = 0; j < nColunas; j++) {
 			printf("%10.3lf ", m[i][j]);
 		}
 		printf("\n\n");
@@ -100,9 +101,12 @@ void imprimeMatriz(double **m, int l, int c) {
 }//imprimeMatriz
 
 int lerMatriz() {
+	//Lê o arquivo de uma matriz a partir do caminho indicado pelo usuário
+	//e aloca a matriz e as variáveis do resultado do SL 
 	FILE *arquivo = NULL;
 	char caminhoDoArquivo[50];
-
+	int i, j;
+	
 	while(arquivo == NULL) {
 		printf("Insira o caminho do arquivo e pressione Enter: \n");
 		fgets(caminhoDoArquivo, sizeof(caminhoDoArquivo), stdin);
@@ -115,15 +119,15 @@ int lerMatriz() {
 
 	fscanf(arquivo, "%d", &ordem); //Lê a primeira linha do arquivo
 
-	A = alocaMatriz(ordem, ordem+1);
-	x = malloc(sizeof(double)*ordem); //Armazena os resultados do SL
+	A = alocaMatriz(ordem, ordem+1);  //Aloca a matriz lida do arquivo
+	x = malloc(sizeof(double)*ordem); //Aloca os resultados do SL
 	if(A == NULL || x == NULL){
 		printf("Memória insuficiente!");		
 		return 1;
 	}
 
-	for(int i = 0; i < ordem; i++) {
-		for(int j = 0; j < ordem + 1; j++) 
+	for(i = 0; i < ordem; i++) {	//Armazena a matriz
+		for(j = 0; j < ordem + 1; j++) 
 			fscanf(arquivo, "%lf", &A[i][j]);				
 	}
 	fclose(arquivo);
@@ -136,15 +140,15 @@ int subRetroativa(double **m, int n, double x[]){
 	
 	for(i = n-1; i >= 0; i--){
 		soma = 0;
-		for(j = i + 1; j < n; j++){
+		for(j = i+1; j < n; j++){
 			soma += m[i][j] * x[j];
 		}
 		if(fabs(m[i][i]) < EPSILON){
-			if(fabs(m[i][n] - soma) < EPSILON){ // x[i] é uma variável livre 
+			if(fabs(m[i][n] - soma) < EPSILON){ // x[i] é variável livre 
 				x[i] = 0;
 				tipo = 1;				
 			}
-			else{
+			else {
 				return 2; //Sistema Linear Incompativel
 			}			
 		}
@@ -156,7 +160,7 @@ int subRetroativa(double **m, int n, double x[]){
 }
 
 void Jordan(double **m, int n) {
-	//Recebe m , a matriz aumenta de um SL com n variáveis e 
+	//Recebe m, a matriz aumentada de um SL com n variáveis e 
 	//transforma m na matriz aumentada de um SL ti equivalente
 	int i, j, k;
 	double mult; 
@@ -165,10 +169,9 @@ void Jordan(double **m, int n) {
 	for(i = 0; i <= n-1; i++) {
 		if(m[i][i] == 0) {
 			j = i + 1;
-			while(j < n && m[i][j] == 0) {
+			while(j < n && m[i][j] == 0) 
 				j++;
-			}
-			if(j < n){
+			if(j < n) {
 				aux = m[i];
 				m[i] = m[j];
 				m[j] = aux;
@@ -198,8 +201,9 @@ void Jordan(double **m, int n) {
 //################################ Teorema de Lagrange #################################
 int calcula_k(int n, double *coeficientes) {
 	int expoente = n;
+	int i;
 	//Percorre o vetor de coeficientes
-	for(int i = 0; i < n+1; i++) {
+	for(i = 0; i < n+1; i++) {
 		//Se o coeficiente for negativo, k recebe o expoente do coeficiente
 		if(coeficientes[i] < 0)
 			return expoente;
@@ -209,8 +213,9 @@ int calcula_k(int n, double *coeficientes) {
 
 double calcula_b(int n, double *coeficientes) {
 	int menor = 0;
+	int i;
 	//Percorre o vetor de coeficientes
-	for(int i = 0; i < n+1; i++) {
+	for(i = 0; i < n+1; i++) {
 		//Se o coeficiente atual for o mais negativo ele é armazenado
 		if(coeficientes[i] < menor)
 			menor = coeficientes[i];
@@ -225,31 +230,34 @@ double calcula_l(int n, double k, double b, double an) {
 
 //Inverte o sinal dos coeficientes de expoente ímpar
 void inverteSinal(int n, double *coeficientes) {
-	for(int i = 0; i < n+1; i++) {	
+	int i;
+	for(i = 0; i < n+1; i++) {	
 		coeficientes[i] *= pow(-1, i);
 	}
 }
 
 int Lagrange(int n, double *coeficientes) {
+	//Recebe o grau do polinômio e seus coeficientes e calcula um intervalo
+	//para as raízes negativas e positivas
 	double k[4];
 	double b[4];
 	double an[2];
 	double L[4];
 	double *coeficienteInverso = 0;
-	
+	int i, l;
 	coeficienteInverso = (double*)malloc(sizeof(double)*n+1);
 	
 	if(coeficienteInverso != NULL){
 		//Obtém o polinômio invertido para calcular L1 e L3
 		int iterator = 0; //variável auxiliar
-		for(int i = n; i > -1; i--) {
+		for(i = n; i > -1; i--) {
 			coeficienteInverso[iterator] = coeficientes[i];
 			iterator++;
 		}
 
-		//Se o an do polinômio invertido for negativo, multiplica o polinômio por -1
+		//Se o an do polinômio invertido for negativo multiplica o polinômio por -1
 		if(coeficienteInverso[0] < 0) {
-			for(int i = 0; i < n+1; i++) {
+			for(i = 0; i < n+1; i++) {
 				coeficienteInverso[i] *= -1;
 			}
 		}
@@ -257,7 +265,7 @@ int Lagrange(int n, double *coeficientes) {
 		an[0] = coeficientes[0]; 
 		an[1] = coeficienteInverso[0]; 
 		//Calcula L0, L1, L2 e L3
-		for(int l = 0; l < 4; l++) {
+		for(l = 0; l < 4; l++) {
 			if(l == 2) //Quando calcular L2 inverte os sinais da equação
 				inverteSinal(n, coeficientes);
 			if(l == 3) //Quando calcular L3 inverte os sinais da equação
@@ -274,7 +282,6 @@ int Lagrange(int n, double *coeficientes) {
 				L[l] = calcula_l(n, k[l], b[l], an[1]);
 			}
 		}
-		free(coeficienteInverso);
 		printf("\nIntervalo das raízes negativas: %.4lf <= x- <= %.6lf\n", -L[2], -1/L[3]);
 		printf("Intervalo das raízes positivas: %.4lf <= x+ <= %.6lf\n\n", 1/L[1], L[0]);
 
@@ -282,22 +289,27 @@ int Lagrange(int n, double *coeficientes) {
 		//é necessário desinvertê-los para obter o polômio original de volta
 		inverteSinal(n, coeficientes);
 	}
-	else if(coeficienteInverso == NULL){
+	else if(coeficienteInverso == NULL) {
 		printf("Faltou memória (função Lagrange)\n");
 		return 1;
 	}
+	free(coeficienteInverso);
 }//Teorema de Lagrange
 
 double resolvePolinomio(int grau, double *coeficientes, double fx) {
 	double resultado = 0;
-	
-	for(int i = 0; i < grau; i++)
+	int i;
+	for(i = 0; i < grau; i++)
 		resultado += coeficientes[i] * pow(fx, grau-i);
 	return resultado + coeficientes[grau];
 }
 
 //################################ Método da Bisseção #################################
 double bissecao(double a, double b, int grau, double *coeficientes, double TOL, int n_iteracoes) {
+	//Recebe um intervalo a~b, o grau do polinômio, os coeficientes, a tolerância máxima do erro
+	//e o número máximo de iterações, então calcula uma aproximação para uma raiz contida no
+	//intervalo
+	
 	double f_a = 0;
 	double f_b = 0;
 	double f_m = 0;
@@ -331,6 +343,7 @@ int main() {
 	double intervalo[2];        //intervalo para o Teorema de Bolzano 
 	double resultInterv[2];     //Resultado do cálculo do polômio no intervalo	
 	char opcao;			        //opção selecionada
+	int i;
 
 	while(opcao != 'F') {
 		printf("\t\t|-----------------------|\n");
@@ -342,7 +355,7 @@ int main() {
 		printf("\t\tF - Finalizar\n");
 
 		opcao = getchar();
-		system("clear");
+		system("cls");    
 		switch(opcao) {
 			case 'C':	
 				printf("Insira o número a ser convertido: ");
@@ -365,9 +378,9 @@ int main() {
 					tipo = subRetroativa(A, ordem, x);
 
 					imprimeMatriz(A, ordem, ordem+1);
-					for(int i = 0; i < ordem; i++)
-						printf("x[%d] = %9.3lf\n", (i+1), x[i]);
-
+					for(i = 0; i < ordem; i++)
+						printf("x[%d] = %9.3lf\n", i+1, x[i]);
+					free(x);
 					printf("Tipo = %d\n", tipo);
 
 					if(tipo == 2)
@@ -379,7 +392,6 @@ int main() {
 					printf("Faltou memória... Ahhh! \n");
 					return 1;
 				}
-				free(x);
 				printf("Pressione Enter para continuar... \n\n");
 				break;
 
@@ -389,7 +401,7 @@ int main() {
 
 				coeficientes = (double*)malloc(sizeof(double)*grau+1);
 				if(coeficientes != NULL) {
-					for(int i = 0; i < grau+1; i++) {
+					for(i = 0; i < grau+1; i++) {
 						printf("Informe o coeficiente a%d:\n", grau-i);
 						scanf("%lf", &coeficientes[i]);
 
@@ -397,7 +409,7 @@ int main() {
 						while(coeficientes[0] < 1) {
 							printf("a%d deve ser maior que 0!\n", grau);
 							printf("Informe o coeficiente a%d:\n", grau);
-							scanf("%lf", &coeficientes[i]);
+							scanf("%lf", &coeficientes[0]);
 						}
 
 						//Verifica se a0 é diferente de zero
@@ -426,7 +438,8 @@ int main() {
 				printf("Resultado[%.2lf] = %.2lf\n", intervalo[0], resultInterv[0]);
 				printf("Resultado[%.2lf] = %.2lf\n", intervalo[1], resultInterv[1]);
 
-				if(resultInterv[0] * resultInterv[1] < 0) {
+				//Teorema de Bolzano
+				if(resultInterv[0] * resultInterv[1] < 0) { 
 					printf("O intervalo contém um número ímpar de raízes!\n");
 					raiz = bissecao(intervalo[0], intervalo[1], grau, coeficientes, 0.00000001, 1000);
 					printf("A raiz aproximada contida no intervalo [%.2lf, %.2lf] é: %.8lf\n", intervalo[0], intervalo[1], raiz);
