@@ -239,16 +239,14 @@ void inverteSinal(int n, double *coeficientes) {
 	}
 }
 
-int Lagrange(int n, double *coeficientes) {
+int Lagrange(int n, double *coeficientes, double *coeficienteInverso) {
 	//Recebe o grau do polinômio e seus coeficientes e calcula um intervalo
 	//para as raízes negativas e positivas
 	double k[4];
 	double b[4];
 	double an[2];
 	double L[4];
-	double *coeficienteInverso = 0;
 	int i, l;
-	coeficienteInverso = (double*)malloc(sizeof(double)*n+1);
 	
 	if(coeficienteInverso != NULL){
 		//Obtém o polinômio invertido para calcular L1 e L3
@@ -296,7 +294,6 @@ int Lagrange(int n, double *coeficientes) {
 		printf("Faltou memória (função Lagrange)\n");
 		return 1;
 	}
-	free(coeficienteInverso);
 }//Teorema de Lagrange
 
 double resolvePolinomio(int grau, double *coeficientes, double fx) {
@@ -338,11 +335,12 @@ double bissecao(double a, double b, int grau, double *coeficientes, double TOL, 
 
 int main() {
 	setlocale(LC_ALL, "Portuguese");
-	double numero        = 0;   //número a ser convertido
-	int tipo			 = 0;	//tipo do sistema linear
-	int grau	         = 0;   //grau da equação algébrica
-	double *coeficientes = 0;   //coeficienes da equação algébrica
-	double raiz			 = 0;   //raiz aproximada do Método da Bisseção
+	double numero              = 0;   //número a ser convertido
+	int tipo			       = 0;	//tipo do sistema linear
+	int grau	               = 0;   //grau da equação algébrica
+	double *coeficientes       = 0;   //coeficientes da equação algébrica
+	double *coeficienteInverso = 0;   //coeficientes invertidos da equação algébrica
+	double raiz			       = 0;   //raiz aproximada do Método da Bisseção
 	double intervalo[2];        //intervalo para o Teorema de Bolzano 
 	double resultInterv[2];     //Resultado do cálculo do polômio no intervalo	
 	char opcao;			        //opção selecionada
@@ -383,7 +381,6 @@ int main() {
 					imprimeMatriz(A, ordem, ordem+1);
 					for(i = 0; i < ordem; i++)
 						printf("x[%d] = %9.3lf\n", i+1, x[i]);
-					free(x);
 					printf("Tipo = %d\n", tipo);
 
 					if(tipo == 2)
@@ -395,6 +392,7 @@ int main() {
 					printf("Faltou memória... Ahhh! \n");
 					return 1;
 				}
+				free(x);
 				printf("Pressione Enter para continuar... \n\n");
 				break;
 
@@ -403,6 +401,7 @@ int main() {
 				scanf("%d", &grau);
 
 				coeficientes = (double*)malloc(sizeof(double)*grau+1);
+				coeficienteInverso = (double*)malloc(sizeof(double)*grau+1);
 				if(coeficientes != NULL) {
 					for(i = 0; i < grau+1; i++) {
 						printf("Informe o coeficiente a%d:\n", grau-i);
@@ -427,7 +426,7 @@ int main() {
 					printf("Faltou memória... Ahhh! \n");
 					return 1;
 				}
-				Lagrange(grau, coeficientes);
+				Lagrange(grau, coeficientes, coeficienteInverso);
 
 				printf("Informe o primeiro valor do intervalo (ex: 0): ");
 				scanf("%lf", &intervalo[0]);
@@ -458,7 +457,7 @@ int main() {
 			default:
 				printf("Opção inválida, tente novamente!\n");
 		}
-		opcao = getchar();
+		while((getchar()) != '\n' && getchar() != EOF){}
 	}
 	return 0;
 }
