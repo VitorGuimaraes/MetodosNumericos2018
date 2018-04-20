@@ -22,7 +22,7 @@ int ordem;  	   //armazena a ordem da matriz
 double *coeficientes;         //coeficientes da equação algébrica
 double *coeficienteInverso;   //coeficientes invertidos da equação algébrica
 
-//################################ Conversão entre Bases #################################
+//###################### Conversão entre Bases ######################
 void converte(double num, int base) {
 	//Recebe um número decimal e a base numérica para a qual deve ser convertido
 	//e printa o número convertido com precisão de até 20 casas decimais
@@ -67,7 +67,7 @@ void converte(double num, int base) {
 	printf("\n");
 }//converte
 
-//################################ Método de Jordan #################################
+//###################### Método de Jordan ######################
 double **alocaMatriz(int nLinhas, int nColunas) {
 	//Se houver memória disponível, aloca uma matriz com nLinhas  e nColunas e 
 	//devolve o endereço base da matriz, caso contrário devolve um ponterio nulo
@@ -90,7 +90,10 @@ double **alocaMatriz(int nLinhas, int nColunas) {
 	return m;
 }//alocaMatriz
 
-double *alocaX(int ordem){
+double *alocaX(int ordem) {
+	//Se houver memória disponível, aloca espaço na memória para armazenar os 
+	//resultados do SL e retorna o endereço base da memória alocada, caso 
+	//contrário devolve um ponterio nulo
 	double *x;
 	x = malloc(sizeof(double)*ordem); //Aloca os resultados do SL
 	
@@ -150,6 +153,9 @@ int lerMatriz() {
 }//lerMatriz
 
 int subRetroativa(double **m, int n, double x[]){   
+	//Recebe uma matriz, a quantidade de variáveis e um vetor para
+	//armazenar os resultados, e então resolve o SL aplicando o método de 
+	//substituição retroativa
 	int tipo = 0;
 	int i, j;
 	double soma;
@@ -214,8 +220,11 @@ void Jordan(double **m, int n) {
 	}
 }//Jordan
 
-//################################ Teorema de Lagrange #################################
+//###################### Teorema de Lagrange ######################
 double *alocaCoeficientes(int grau) {
+	//Se houver memória disponível, aloca espaço na memória para armazenar os 
+	//coeficientes da equação algébrica e retorna o endereço base da memória alocada, 
+	//caso contrário devolve um ponterio nulo
 	double *coef;
 	coef = malloc(sizeof(double)*grau+1);
 
@@ -227,6 +236,9 @@ double *alocaCoeficientes(int grau) {
 }
 
 double *alocaCoeficienteInverso(int grau) {
+	//Se houver memória disponível, aloca espaço na memória para armazenar os 
+	//coeficientes invertidos da equação algébrica e retorna o endereço base da 
+	//memória alocada, caso contrário devolve um ponterio nulo
 	double *coefInverso;
 	coefInverso = malloc(sizeof(double *)*grau+1);
 
@@ -266,8 +278,8 @@ double calcula_l(int n, double k, double b, double an) {
 	return 1.0 + pow(b/an, 1.0/(n-k));
 }
 
-//Inverte o sinal dos coeficientes de expoente ímpar
 void inverteSinal(int n, double *coeficientes) {
+	//Inverte o sinal dos coeficientes de expoente ímpar
 	int i;
 	for(i = 0; i < n+1; i++) {	
 		coeficientes[i] *= pow(-1, i);
@@ -334,7 +346,7 @@ double resolvePolinomio(int grau, double *coeficientes, double fx) {
 	return resultado + coeficientes[grau];
 }//resolvePolinomio
 
-//################################ Método da Bisseção #################################
+//###################### Método da Bisseção ######################
 double bissecao(double a, double b, int grau, double *coeficientes, double TOL, int n_iteracoes) {
 	//Recebe um intervalo a~b, o grau do polinômio, os coeficientes, a tolerância máxima do erro
 	//e o número máximo de iterações, então calcula uma aproximação para uma raiz contida no
