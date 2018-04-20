@@ -107,6 +107,9 @@ int lerMatriz() {
 	char caminhoDoArquivo[50];
 	int i, j;
 	
+	//Esvazia o buffer do stdin
+	while((getchar()) != '\n' && getchar() != EOF){}
+
 	while(arquivo == NULL) {
 		printf("Insira o caminho do arquivo e pressione Enter: \n");
 		fgets(caminhoDoArquivo, sizeof(caminhoDoArquivo), stdin);
